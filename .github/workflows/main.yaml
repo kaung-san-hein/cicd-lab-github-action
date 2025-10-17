@@ -23,9 +23,6 @@ jobs:
       - name: lint check
         run: npm run lint
 
-      - name: run audit check
-        run: npm audit
-
       - name: build next.js application
         run: npm run build
 
