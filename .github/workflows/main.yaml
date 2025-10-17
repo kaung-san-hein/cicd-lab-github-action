@@ -1,0 +1,39 @@
+name: NextJs CI/CD Develop
+
+on:
+  push:
+    branches:
+      - master
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: setup node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: install dependencies
+        run: npm install
+
+      - name: build next.js application
+        run: npm run build
+
+      - name: deploy to server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.REMOTE_TARGET }}
+            git pull origin master
+            npm install 
+            npm run build
+            pm2 stop cicd-lab || true
+            pm2 start cicd-lab
+            pm2 save
